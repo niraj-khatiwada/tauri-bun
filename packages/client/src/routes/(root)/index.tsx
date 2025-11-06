@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
+import { client } from '~/utils/client'
 import Logo from '../../logo.svg'
 
 export const Route = createFileRoute('/(root)/')({
@@ -7,6 +9,10 @@ export const Route = createFileRoute('/(root)/')({
 })
 
 function App() {
+  const { data } = useQuery({
+    queryKey: ['/'],
+    queryFn: () => client.get(),
+  })
   return (
     <>
       <div className="h-screen w-screen flex items-center justify-center flex-col">
@@ -18,14 +24,8 @@ function App() {
           <Link to="/dashboard" className="text-blue-500 block my-2">
             Go to Dashboard
           </Link>
-          <Link
-            to="/user/$userId"
-            params={{ userId: '1' }}
-            className="text-blue-500 block my-2"
-          >
-            Go to User 1
-          </Link>
         </div>
+        <p className="text-white">{data?.data ?? ''}</p>
       </div>
     </>
   )

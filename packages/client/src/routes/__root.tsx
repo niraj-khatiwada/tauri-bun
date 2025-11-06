@@ -1,62 +1,21 @@
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import type { QueryClient } from '@tanstack/react-query'
-import {
-  createRootRouteWithContext,
-  HeadContent,
-  Scripts,
-} from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { QueryClientProvider } from 'packages/client/src/provider/QueryClientProvider'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import appCss from '~/styles.css?url'
+import { QueryClientProvider } from '~/provider/QueryClientProvider'
 
-export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient
-}>()({
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'Bun TanStack',
-      },
-    ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-    ],
-  }),
-  shellComponent: RootDocument,
+export const Route = createRootRoute({
+  component: RootComponent,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+const isDev = import.meta.env.DEV
+
+function RootComponent() {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <QueryClientProvider>{children}</QueryClientProvider>
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
-        <Scripts />
-      </body>
-    </html>
+    <>
+      <QueryClientProvider>
+        <Outlet />
+      </QueryClientProvider>
+      {isDev ? <TanStackRouterDevtools position="bottom-right" /> : null}
+    </>
   )
 }

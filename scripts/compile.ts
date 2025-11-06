@@ -1,4 +1,8 @@
 /** biome-ignore-all lint/suspicious/noConsole: <> */
+
+/**
+ * Compile the packages/server to use as a sidecar in Tauri
+ */
 import { $ } from 'bun'
 
 import packageJson from '../package.json'
@@ -34,7 +38,7 @@ async function main() {
   const os = process.platform as keyof typeof BINARIES_POSTFIX
   const arch = process.arch as keyof typeof ARCHITECTURES
 
-  const binary_postfix = BINARIES_POSTFIX[os][arch]
+  const binary_postfix = BINARIES_POSTFIX[os]?.[arch]
 
   if (!binary_postfix) {
     throw new Error(
@@ -48,10 +52,10 @@ async function main() {
   console.log(`\x1b[36mOutput binary:\x1b[0m ${outfile}`)
 
   console.log('\x1b[34mBuilding frontend with Vite...\x1b[0m')
-  await $`bun run vite:build`
+  await $`bun run --filter client build`
 
   console.log('\x1b[34mCompiling backend with Bun...\x1b[0m')
-  await $`bun build --compile --minify --sourcemap --bytecode --bundle ./server.ts --outfile ${outfile}`
+  await $`bun build --compile --minify-whitespace --minify-syntax --target bun --bytecode --bundle ./server/index.ts --outfile ${outfile}`
 
   console.log('\x1b[32mDone! Binary created at:\x1b[0m', outfile)
 }

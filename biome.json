@@ -8,7 +8,7 @@
   "files": {
     "includes": [
       "**",
-      "**/src/**/*",
+      "**/packages/**/*",
       "**/.vscode/**/*",
       "**/scripts/**/*",
       "**/vite.config.ts",

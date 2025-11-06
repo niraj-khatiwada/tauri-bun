@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'url'
 import tailwindcss from '@tailwindcss/vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
@@ -13,16 +12,6 @@ const config = defineConfig({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
-    tanstackStart({
-      spa: {
-        enabled: true,
-        prerender: {
-          outputPath: '/index.html',
-          crawlLinks: true,
-          retryCount: 3,
-        },
-      },
-    }),
     viteReact({ exclude: ['./src/server.ts'] }),
   ],
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -41,13 +30,12 @@ const config = defineConfig({
         }
       : undefined,
     watch: {
-      // 3. tell Vite to ignore watching `src-tauri`
       ignored: ['**/src-tauri/**'],
     },
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 })

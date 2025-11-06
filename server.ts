@@ -68,8 +68,9 @@ import path from 'node:path'
 
 // Configuration
 const SERVER_PORT = Number(process.env.PORT ?? 3000)
-const CLIENT_DIRECTORY = './dist/client'
-const SERVER_ENTRY_POINT = './dist/server/server.js'
+const RESOURCE_DIR = process.env.RESOURCE_DIR // Tauri will provide the resource directory where our server code lives
+const CLIENT_DIRECTORY = `${RESOURCE_DIR ?? '.'}/dist/client`
+const SERVER_ENTRY_POINT = `${RESOURCE_DIR ?? '.'}/dist/server/server.js`
 
 // Logging utilities for professional output
 const log = {

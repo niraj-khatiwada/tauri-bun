@@ -51,7 +51,7 @@ async function main() {
   await $`bun run vite:build`
 
   console.log('\x1b[34mCompiling backend with Bun...\x1b[0m')
-  await $`bun build --compile --minify --sourcemap --bytecode ./server.ts --outfile ${outfile}`
+  await $`bun build --compile --minify --sourcemap --bytecode --bundle ./server.ts --outfile ${outfile}`
 
   console.log('\x1b[32mDone! Binary created at:\x1b[0m', outfile)
 }

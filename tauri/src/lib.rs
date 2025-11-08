@@ -1,57 +1,57 @@
-use tauri::{App, Manager};
-use tauri_plugin_shell::{process::CommandEvent, ShellExt};
-
-// #[cfg(not(debug_assertions))]
-fn init_server(app: &mut App) {
-    let shell = app.shell();
-
-    let resource_dir = app.path().resource_dir().unwrap();
-
-    let mut sidecar = shell
-        .sidecar("bun-tanstack")
-        .expect("unable to run sidecar");
-
-    sidecar = sidecar.env(
-        "RESOURCE_DIR",
-        format!("{}/_up_", resource_dir.to_string_lossy().to_string()), // _up_ = TanStack's `dist and `node_modules` are one level up from src-tauri
-    );
-
-    // Pass the resource directory to bun server instantiation cli
-    let (mut rx, _child) = sidecar.spawn().expect("unable to swpawn the sidecar");
-
-    tauri::async_runtime::spawn(async move {
-        while let Some(event) = rx.recv().await {
-            match event {
-                CommandEvent::Stdout(data) => {
-                    if let Ok(text) = String::from_utf8(data) {
-                        println!("[stdout]: {}", text.trim());
-                    }
-                }
-                CommandEvent::Stderr(data) => {
-                    if let Ok(text) = String::from_utf8(data) {
-                        eprintln!("[stderr]: {}", text.trim());
-                    }
-                }
-                CommandEvent::Terminated(code) => {
-                    println!("[stdterm]:Sidecar exited with code {:?}", code);
-                }
-                _ => {}
-            }
-        }
-    });
-}
+pub mod command;
+pub mod domain;
+pub mod server;
+pub mod vault;
+use domain::AppState;
+use parking_lot::Mutex;
+use std::sync::Arc;
+use tauri::{Manager, RunEvent};
+use zeroize::Zeroize;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-            // #[cfg(not(debug_assertions))]
-            init_server(app);
+            let mut stronghold = vault::init_vault(app.handle(), "PASSWORD")
+                .expect("Stronghold initialization failed");
 
+            let mut app_secret_key_bytes =
+                vault::get_or_generate_app_secret(app.handle(), &mut stronghold)
+                    .expect("Unable to get app secret key");
+            let app_secret_key = app_secret_key_bytes.clone();
+
+            app_secret_key_bytes.zeroize();
+
+            let app_state = AppState {
+                app_secret_key: app_secret_key,
+                server: Arc::new(Mutex::new(None)),
+                stronghold: Arc::new(Mutex::new(Some(stronghold))),
+            };
+            println!("{:?}", hex::encode(&app_state.app_secret_key));
+            app.manage(app_state);
+
+            #[cfg(not(debug_assertions))] // Only start server in production
+            if let Err(err) = server::start_server(app.handle()) {
+                println!("[sidecar] Failed to start the server: {}", err);
+            }
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(|app_handle, event| {
+            #[cfg(not(debug_assertions))]
+            match event {
+                RunEvent::ExitRequested { .. } | RunEvent::Exit => {
+                    if let Err(e) = server::shutdown_server(app_handle) {
+                        println!("[sidecar] Failed to shut down server on exit: {}", e);
+                    }
+                }
+                _ => {}
+            }
+        });
 }
+
+// 34817a52c1f1e74b4d37cdea31545612d11275f4edc5a385ff86b8d4468d2ebe

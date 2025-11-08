@@ -30,8 +30,8 @@ const BINARIES_POSTFIX: Record<
   },
 } as const
 
-const BINARY_NAME = packageJson.name
-const OUTDIR = `./src-tauri/bin`
+const BINARY_NAME = `${packageJson.name}-sidecar`
+const OUTDIR = `./tauri/bin`
 const OUTFILE = `${OUTDIR}/${BINARY_NAME}-{binary_postfix}`
 
 async function main() {
@@ -55,7 +55,7 @@ async function main() {
   await $`bun run --filter client build`
 
   console.log('\x1b[34mCompiling backend with Bun...\x1b[0m')
-  await $`bun build --compile --minify-whitespace --minify-syntax --target bun --bytecode --bundle ./server/index.ts --outfile ${outfile}`
+  await $`bun build --compile --minify-whitespace --minify-syntax --target bun --bytecode --bundle ./packages/server/index.ts --outfile ${outfile}`
 
   console.log('\x1b[32mDone! Binary created at:\x1b[0m', outfile)
 }

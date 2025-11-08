@@ -1,5 +1,14 @@
 {
   "name": "tauri-bun",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:debug": "tauri build --debug",
+    "compile": "bun run ./scripts/compile.ts",
+    "tsc:check": "tsc --noEmit --skipLibCheck"
+  },
   "devDependencies": {
     "husky": "^8.0.1",
     "@biomejs/biome": "2.3.2",
@@ -14,14 +23,5 @@
   },
   "lint-staged": {
     "src/**/*.{js,ts,jsx,tsx}": ["biome check --write"]
-  },
-  "private": true,
-  "scripts": {
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
-    "tauri:build:debug": "tauri build --debug",
-    "compile": "bun run ./scripts/compile.ts",
-    "tsc:check": "tsc --noEmit --skipLibCheck"
-  },
-  "workspaces": ["packages/*"]
+  }
 }

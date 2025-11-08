@@ -1,12 +1,10 @@
 use parking_lot::Mutex;
 use std::sync::Arc;
 use tauri_plugin_shell::process::CommandChild;
-use tauri_plugin_stronghold::stronghold::Stronghold;
 
 pub struct AppState {
-    pub app_secret_key: Vec<u8>,
+    pub app_secret_key: String,
     pub server: Arc<Mutex<Option<CommandChild>>>,
-    pub stronghold: Arc<Mutex<Option<Stronghold>>>,
 }
 
 impl Drop for AppState {

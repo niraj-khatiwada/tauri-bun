@@ -6,32 +6,9 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "stronghold:default",
     {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "args": true,
-          "name": "./bin/tauri-bun",
-          "sidecar": true
-        }
-      ]
-    },
-    {
-      "identifier": "fs:default",
-      "allow": [
-        {
-          "path": "$APPDATA/**"
-        }
-      ]
-    },
-    {
-      "identifier": "fs:scope",
-      "allow": [
-        {
-          "path": "$APPDATA/*"
-        }
-      ]
+      "identifier": "http:default",
+      "allow": [{ "url": "https://*:*" }, { "url": "http://*:*" }]
     }
   ]
 }

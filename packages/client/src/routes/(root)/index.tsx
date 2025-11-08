@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { fetch } from '@tauri-apps/plugin-http'
 
-import { client } from '~/utils/client'
+import { getAuthToken } from '~/utils/tauri-commands'
 import Logo from '../../logo.svg'
 
 export const Route = createFileRoute('/(root)/')({
@@ -11,7 +12,15 @@ export const Route = createFileRoute('/(root)/')({
 function App() {
   const { data } = useQuery({
     queryKey: ['/'],
-    queryFn: () => client.get(),
+    queryFn: async () => {
+      const authToken = await getAuthToken()
+      const res = await fetch('http://localhost:3000', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      })
+      return await res.json()
+    },
   })
 
   return (

@@ -32,5 +32,5 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
   },
-  "cSpell.words": ["Elysia", "zeroize"]
+  "cSpell.words": ["Elysia", "jsonwebtoken", "zeroize"]
 }

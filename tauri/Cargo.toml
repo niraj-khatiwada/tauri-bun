@@ -29,5 +29,5 @@ hmac = "0.12.1"
 sha2 = "0.10.9"
 hex = "0.4.3"
 rand = "0.9.2"
-zeroize = "1.8.2"
-tauri-plugin-fs = "2.4.4"
+jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
+tauri-plugin-http = { version = "2.5.4", features = ["unsafe-headers"] }

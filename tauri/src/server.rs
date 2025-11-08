@@ -1,4 +1,5 @@
 use crate::domain::AppState;
+use serde_json::Value;
 use std::time::Duration;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
@@ -47,7 +48,39 @@ pub fn start_server(app_handle: &AppHandle) -> Result<(), String> {
             match event {
                 CommandEvent::Stdout(data) => {
                     if let Ok(text) = String::from_utf8(data) {
-                        println!("[sidecar] Server stdin {}", text.trim());
+                        let line = text.trim();
+                        println!("[sidecar] Server stdin {}", line);
+                        if line.starts_with("[verify-token]") {
+                            let json_str = line
+                                .strip_prefix("[verify-token]")
+                                .expect("[sidecar] Invalid prefix")
+                                .trim();
+                            if let Ok(payload) = serde_json::from_str::<Value>(json_str) {
+                                // Access id and token dynamically
+                                let id = payload.get("id").and_then(|v| v.as_str());
+                                let token = payload.get("token").and_then(|v| v.as_str());
+
+                                match (id, token) {
+                                    (Some(id), Some(token)) => {
+                                        let response_json = serde_json::json!({
+                                            "id": id,
+                                            "valid":true
+                                        });
+                                        let app_handle_clone = app_handle.clone();
+                                        let response_str =
+                                            serde_json::to_string(&response_json).unwrap();
+
+                                        tauri::async_runtime::spawn(async move {
+                                            let _ =
+                                                send_to_server(&app_handle_clone, &response_str);
+                                        });
+                                    }
+                                    _ => eprintln!(
+                                        "[sidecar] Token verification is missing id or token field."
+                                    ),
+                                }
+                            }
+                        }
                     }
                 }
                 CommandEvent::Stderr(data) => {

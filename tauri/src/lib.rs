@@ -2,9 +2,10 @@ pub mod commands;
 pub mod crypto;
 pub mod domain;
 pub mod server;
-use commands::get_auth_token;
+use commands::get_server_config;
 use domain::AppState;
 use parking_lot::Mutex;
+use std::net::TcpListener;
 use std::sync::Arc;
 use tauri::{Manager, RunEvent};
 
@@ -17,24 +18,28 @@ pub fn run() {
         .setup(|app| {
             let sk = crypto::generate_secret_hex();
 
+            let listener = TcpListener::bind("127.0.0.1:0")?;
+            let server_port = listener.local_addr()?.port();
+
             let app_state = AppState {
                 app_secret_key: sk,
                 server: Arc::new(Mutex::new(None)),
+                server_port: server_port,
             };
             app.manage(app_state);
 
-            // #[cfg(not(debug_assertions))]
-            if let Err(err) = server::start_server(app.handle()) {
+            #[cfg(not(debug_assertions))]
+            if let Err(err) = server::start_server(app.handle(), server_port) {
                 println!("[sidecar] Failed to start the server: {}", err);
             }
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_auth_token])
+        .invoke_handler(tauri::generate_handler![get_server_config])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run(|app_handle, event| {
-            // #[cfg(not(debug_assertions))]
+            #[cfg(not(debug_assertions))]
             match event {
                 RunEvent::ExitRequested { .. } | RunEvent::Exit => {
                     if let Err(e) = server::shutdown_server(app_handle) {

@@ -55,7 +55,7 @@ async function main() {
   await $`bun run --filter client build`
 
   console.log('\x1b[34mCompiling backend with Bun...\x1b[0m')
-  await $`bun build --compile --minify-whitespace --minify-syntax --target bun --bytecode --bundle ./packages/server/index.ts --outfile ${outfile}`
+  await $`bun build --compile --production --minify-whitespace --minify-syntax --target bun --bytecode --bundle ./packages/server/src/index.ts --outfile ${outfile}`
 
   console.log('\x1b[32mDone! Binary created at:\x1b[0m', outfile)
 }

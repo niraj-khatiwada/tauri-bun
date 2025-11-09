@@ -1,10 +1,12 @@
 use parking_lot::Mutex;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tauri_plugin_shell::process::CommandChild;
 
 pub struct AppState {
     pub app_secret_key: String,
     pub server: Arc<Mutex<Option<CommandChild>>>,
+    pub server_port: u16,
 }
 
 impl Drop for AppState {
@@ -17,4 +19,11 @@ impl Drop for AppState {
             }
         }
     }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ServerConfig {
+    pub auth_token: String,
+    pub server_port: u16,
 }

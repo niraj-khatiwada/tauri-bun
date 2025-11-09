@@ -1,5 +1,8 @@
 import { invoke } from '@tauri-apps/api/core'
 
-export async function getAuthToken() {
-  return await invoke<string>('get_auth_token')
+export async function getServerConfig() {
+  return await invoke<{
+    authToken: string
+    serverPort: number
+  }>('get_server_config')
 }

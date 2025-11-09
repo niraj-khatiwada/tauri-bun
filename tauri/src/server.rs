@@ -1,4 +1,4 @@
-use crate::domain::AppState;
+use crate::{crypto, domain::AppState};
 use serde_json::Value;
 use std::time::Duration;
 use tauri::{AppHandle, Manager};
@@ -21,7 +21,7 @@ pub fn send_to_server(app_handle: &AppHandle, msg: &str) -> Result<(), String> {
     Err(String::from("Server is not running."))
 }
 
-pub fn start_server(app_handle: &AppHandle) -> Result<(), String> {
+pub fn start_server(app_handle: &AppHandle, server_port: u16) -> Result<(), String> {
     println!("[sidecar] Starting server...");
     if let Some(app_state) = app_handle.try_state::<AppState>() {
         if app_state.server.lock().is_some() {
@@ -31,9 +31,13 @@ pub fn start_server(app_handle: &AppHandle) -> Result<(), String> {
     }
 
     let shell = app_handle.shell();
-    let sidecar = shell
+    let mut sidecar = shell
         .sidecar("tauri-bun-sidecar")
         .map_err(|err| err.to_string())?;
+
+    sidecar = sidecar.env("TZ", "UTC");
+    sidecar = sidecar.env("NODE_ENV", "production");
+    sidecar = sidecar.env("PORT", server_port.to_string());
 
     let (mut rx, child) = sidecar.spawn().map_err(|err| err.to_string())?;
 
@@ -43,37 +47,47 @@ pub fn start_server(app_handle: &AppHandle) -> Result<(), String> {
     }
 
     let app_handle_clone = app_handle.clone();
+    let app_handle_clone2 = app_handle.clone();
+
     tauri::async_runtime::spawn(async move {
         while let Some(event) = rx.recv().await {
             match event {
                 CommandEvent::Stdout(data) => {
                     if let Ok(text) = String::from_utf8(data) {
                         let line = text.trim();
+                        #[cfg(debug_assertions)]
                         println!("[sidecar] Server stdin {}", line);
+
+                        // Verify server auth token request
                         if line.starts_with("[verify-token]") {
                             let json_str = line
                                 .strip_prefix("[verify-token]")
                                 .expect("[sidecar] Invalid prefix")
                                 .trim();
                             if let Ok(payload) = serde_json::from_str::<Value>(json_str) {
-                                // Access id and token dynamically
                                 let id = payload.get("id").and_then(|v| v.as_str());
                                 let token = payload.get("token").and_then(|v| v.as_str());
 
                                 match (id, token) {
                                     (Some(id), Some(token)) => {
-                                        let response_json = serde_json::json!({
-                                            "id": id,
-                                            "valid":true
-                                        });
-                                        let app_handle_clone = app_handle.clone();
-                                        let response_str =
-                                            serde_json::to_string(&response_json).unwrap();
+                                        if let Some(app_state) =
+                                            app_handle_clone2.try_state::<AppState>()
+                                        {
+                                            let claims = crypto::verify_token(
+                                                &app_state.app_secret_key,
+                                                token,
+                                            );
+                                            let response_json = serde_json::json!({
+                                                "id": id,
+                                                "valid": &claims.is_ok()
+                                            });
+                                            let response_str = format!(
+                                                "[verify-token-response] {}",
+                                                serde_json::to_string(&response_json).unwrap()
+                                            );
 
-                                        tauri::async_runtime::spawn(async move {
-                                            let _ =
-                                                send_to_server(&app_handle_clone, &response_str);
-                                        });
+                                            send_to_server(&app_handle_clone2, &response_str).ok();
+                                        }
                                     }
                                     _ => eprintln!(
                                         "[sidecar] Token verification is missing id or token field."
@@ -83,7 +97,9 @@ pub fn start_server(app_handle: &AppHandle) -> Result<(), String> {
                         }
                     }
                 }
-                CommandEvent::Stderr(data) => {
+                CommandEvent::Stderr(data) =>
+                {
+                    #[cfg(debug_assertions)]
                     if let Ok(text) = String::from_utf8(data) {
                         eprintln!("[sidecar] Server stderr {}", text.trim());
                     }
@@ -101,10 +117,11 @@ pub fn start_server(app_handle: &AppHandle) -> Result<(), String> {
                     }
 
                     let app_handle_clone = app_handle_clone.clone();
+
                     tauri::async_runtime::spawn(async move {
                         println!("[sidecar] Restarting server...");
                         tokio::time::sleep(Duration::from_secs(3)).await;
-                        if let Err(e) = start_server(&app_handle_clone) {
+                        if let Err(e) = start_server(&app_handle_clone, server_port) {
                             eprintln!("[sidecar] Failed to restart the server: {}", e);
                         }
                     });

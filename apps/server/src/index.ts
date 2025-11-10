@@ -1,9 +1,9 @@
 import process from 'node:process'
 
 import { authMiddleware } from './middleware'
-import { intiRustIpc } from './rust-ipc'
+import { listenRustIPC } from './rust-ipc'
 
-intiRustIpc()
+listenRustIPC()
 
 const isProd = process.env.NODE_ENV === 'production'
 

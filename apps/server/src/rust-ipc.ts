@@ -7,7 +7,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 })
 
-export function intiRustIpc() {
+export function listenRustIPC() {
   rl.on('line', async (line) => {
     if (line.startsWith('[verify-token-response]')) {
       try {

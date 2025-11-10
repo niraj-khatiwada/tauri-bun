@@ -1,9 +1,9 @@
 /** biome-ignore-all lint/suspicious/noConsole: <> */
 
-import path from 'path'
 /**
  * Compile the packages/server to use as a sidecar in Tauri
  */
+import path from 'node:path'
 import { $ } from 'bun'
 
 import packageJson from '../../../package.json'

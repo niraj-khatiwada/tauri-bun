@@ -6,7 +6,7 @@
   "build": {
     "devUrl": "http://localhost:3001",
     "beforeBuildCommand": "bun compile",
-    "frontendDist": "../packages/client/dist"
+    "frontendDist": "../apps/client/dist"
   },
   "app": {
     "windows": [

@@ -51,11 +51,8 @@ async function main() {
   console.log(`\x1b[36mDetected:\x1b[0m ${os} (\x1b[33m${arch}\x1b[0m)`)
   console.log(`\x1b[36mOutput binary:\x1b[0m ${outfile}`)
 
-  console.log('\x1b[34mBuilding frontend with Vite...\x1b[0m')
-  await $`bun run --filter client build`
-
-  console.log('\x1b[34mCompiling backend with Bun...\x1b[0m')
-  await $`bun build --compile --production --minify-whitespace --minify-syntax --target bun --bytecode --bundle ./packages/server/src/index.ts --outfile ${outfile}`
+  console.log('\x1b[34mCompiling server with Bun...\x1b[0m')
+  await $`bun build --compile --production --minify --minify-syntax --target bun --bytecode --bundle ./apps/server/src/index.ts --outfile ${outfile}`
 
   console.log('\x1b[32mDone! Binary created at:\x1b[0m', outfile)
 }

@@ -14,6 +14,7 @@ function handleCors(_: Request, res: Response) {
 
 const server = Bun.serve({
   port: process.env['PORT'] ?? 3000,
+  hostname: 'localhost',
   async fetch(req: Request) {
     if (req.method === 'OPTIONS') {
       return handleCors(req, new Response(null, { status: 204 }))

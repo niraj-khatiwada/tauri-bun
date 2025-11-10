@@ -1,11 +1,12 @@
 /** biome-ignore-all lint/suspicious/noConsole: <> */
 
+import path from 'path'
 /**
  * Compile the packages/server to use as a sidecar in Tauri
  */
 import { $ } from 'bun'
 
-import packageJson from '../package.json'
+import packageJson from '../../../package.json'
 
 const ARCHITECTURES = {
   x64: 'x64',
@@ -31,7 +32,7 @@ const BINARIES_POSTFIX: Record<
 } as const
 
 const BINARY_NAME = `${packageJson.name}-sidecar`
-const OUTDIR = `./tauri/bin`
+const OUTDIR = path.join(__dirname, '..', '..', '..', 'tauri', 'bin')
 const OUTFILE = `${OUTDIR}/${BINARY_NAME}-{binary_postfix}`
 
 async function main() {
@@ -52,7 +53,7 @@ async function main() {
   console.log(`\x1b[36mOutput binary:\x1b[0m ${outfile}`)
 
   console.log('\x1b[34mCompiling server with Bun...\x1b[0m')
-  await $`bun build --compile --production --minify --minify-syntax --target bun --bytecode --bundle ./apps/server/src/index.ts --outfile ${outfile}`
+  await $`bun build --compile --production --minify --minify-syntax --target bun --bytecode --bundle ./src/index.ts --outfile ${outfile}`
 
   console.log('\x1b[32mDone! Binary created at:\x1b[0m', outfile)
 }

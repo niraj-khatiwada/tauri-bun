@@ -6,7 +6,7 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:debug": "tauri build --debug",
-    "compile": "bun run ./scripts/compile.ts",
+    "build:apps": "bun run --filter client build && bun run --filter server compile",
     "tsc:check": "tsc --noEmit --skipLibCheck"
   },
   "devDependencies": {

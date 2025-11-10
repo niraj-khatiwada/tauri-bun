@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch ./src/index.ts"
+    "dev": "bun --watch ./src/index.ts",
+    "compile": "bun ./scripts/compile.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

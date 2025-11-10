@@ -4,7 +4,10 @@ export async function fetcher<T>(
   url: string,
   options?: RequestInit & ClientOptions,
 ): Promise<T> {
-  const PORT = window.__serverConfig?.serverPort ?? 3000 // In dev set the appropriate port. In prod, it is handled automatically.
+  const PORT =
+    window.__serverConfig?.serverPort ??
+    import.meta.env.VITE_SERVER_PORT ??
+    3000
   const res = await fetch(`http://localhost:${PORT}${url}`, {
     ...(options ?? {}),
     headers: {

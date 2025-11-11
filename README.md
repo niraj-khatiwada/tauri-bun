@@ -1,6 +1,6 @@
 # Tauri + Bun
 
-Read the [blogpost](https://codeforreal.com/blogs/using-bun-or-deno-as-a-web-server-in-tauri/) for the complete implementation details.
+Read the [blogpost](https://codeforreal.com/blogs/using-bun-or-deno-as-a-web-server-in-tauri/?utm_source=github.com) for the complete implementation details.
 
 This repo shows you how to setup a cross-platform desktop app using Tauri but
 with Bun as a web server. The web server is fully secured and is only accessible

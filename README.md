@@ -10,7 +10,7 @@ blocked completely.
 ##### A Tauri + Deno version is available [here](https://github.com/niraj-khatiwada/tauri-deno).
 
 <img src="/assets/hero.png" style="object-fit: contain;" />
-<img src="/assets/process_flow.png" style="object-fit: contain;" />
+<img src="/assets/process_diagram.png" style="object-fit: contain;" />
 
 ### Development
 

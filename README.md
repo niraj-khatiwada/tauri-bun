@@ -3,10 +3,7 @@
 Read the [blogpost](https://codeforreal.com/blogs/using-bun-or-deno-as-a-web-server-in-tauri/?utm_source=github.com) for the complete implementation details.
 
 This repo shows you how to setup a cross-platform desktop app using Tauri but
-with Bun as a web server. The web server is fully secured and is only accessible
-by the Tauri webview via token authentication that can be verified via Rust
-only. Accessing the webserver outside of the Rust and the Tauri webview will be
-blocked completely.
+with Bun. We create a bi-directional RPC between Bun server and our Tauri client using [kkrpc](https://docs.kkrpc.kunkun.sh/). This setup requires almost zero extra code in Rust backend aside from Tauri Sidecar configuration.
 <br />
 
 ##### A Tauri + Deno version is available [here](https://github.com/niraj-khatiwada/tauri-deno).

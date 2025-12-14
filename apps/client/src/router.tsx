@@ -1,8 +1,8 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { Command } from '@tauri-apps/plugin-shell'
 import { RPCChannel, TauriShellStdio } from 'kkrpc/browser'
 import ReactDOM from 'react-dom/client'
 import './styles.css'
-import { Command } from '@tauri-apps/plugin-shell'
 
 import { api as clientApi } from './api'
 import { routeTree } from './routeTree.gen'

@@ -1,13 +1,31 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { RPCChannel, TauriShellStdio } from 'kkrpc/browser'
 import ReactDOM from 'react-dom/client'
 import './styles.css'
+import { Command } from '@tauri-apps/plugin-shell'
 
+import { api as clientApi } from './api'
 import { routeTree } from './routeTree.gen'
-import { getServerConfig } from './utils/tauri-commands'
+import { type API as ClientApi } from './types/api'
+import { type API as ServerApi } from '../../server/src/types/api'
+
+export type RouterContext = {
+  serverApi: ServerApi
+}
+
+//  Start the server
+const cmd = Command.sidecar('bin/tauri-bun-sidecar') // See `BINARY_NAME` variable in `apps/server/scripts/compile.ts` to get the sidecar name
+const process = await cmd.spawn()
+const stdio = new TauriShellStdio(cmd.stdout, process)
+const channel = new RPCChannel<ClientApi, ServerApi>(stdio, {
+  expose: clientApi,
+})
+const serverApi = channel.getAPI()
 
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  context: { serverApi } as RouterContext,
 })
 
 declare module '@tanstack/react-router' {
@@ -16,29 +34,11 @@ declare module '@tanstack/react-router' {
   }
 }
 
-// See vite-env.d.ts to set type
-if (typeof window !== 'undefined') {
-  // See `vite.config.ts` for all defined values.
-  window.__appVersion = __appVersion
-  window.__envMode = __envMode
-
-  if (import.meta.env.PROD) {
-    // Get local server config
-    const serverConfig = await getServerConfig()
-
-    if (!serverConfig) {
-      throw new Error("Couldn't get server config via Tauri IPC.")
-    }
-
-    window.__serverConfig = {
-      authToken: serverConfig.authToken,
-      serverPort: serverConfig.serverPort,
-    }
-  }
-}
+// See `vite.config.ts` for all defined values.
+window.__appVersion = __appVersion
+window.__envMode = __envMode
 
 const rootElement = document.getElementById('app')!
-
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(<RouterProvider router={router} />)

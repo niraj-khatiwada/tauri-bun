@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
-import { fetcher } from '~/utils/fetcher'
 import Logo from '../../logo.svg'
 
 export const Route = createFileRoute('/(root)/')({
@@ -9,9 +8,11 @@ export const Route = createFileRoute('/(root)/')({
 })
 
 function App() {
+  const { serverApi } = Route.useRouteContext()
+
   const { data } = useQuery({
-    queryKey: ['/'],
-    queryFn: () => fetcher('/'),
+    queryKey: ['task1'],
+    queryFn: serverApi.tasks.task1,
   })
 
   return (
@@ -24,7 +25,7 @@ function App() {
             Go to Dashboard
           </Link>
         </div>
-        <p className="text-white">{JSON.stringify(data, null, 2)}</p>
+        <p className="text-white">{JSON.stringify({ data }, null, 2)}</p>
       </div>
     </>
   )

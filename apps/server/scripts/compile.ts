@@ -31,7 +31,7 @@ const BINARIES_POSTFIX: Record<
   },
 } as const
 
-const BINARY_NAME = `${packageJson.name}-sidecar`
+const BINARY_NAME = `tauri-bun-sidecar` // NOTE: Make sure the sidecar binary name same as the one used in Tauri configuration
 const OUTDIR = path.join(__dirname, '..', '..', '..', 'tauri', 'bin')
 const OUTFILE = `${OUTDIR}/${BINARY_NAME}-{binary_postfix}`
 

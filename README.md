@@ -36,6 +36,7 @@ bun dev
 - Run the Tauri server:
 
 ```
+bun run --filter server compile # Make sure to compile the Bun server binary at least onece before running Tauri server
 bun tauri:dev
 ```
 

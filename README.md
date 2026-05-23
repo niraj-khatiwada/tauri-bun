@@ -19,31 +19,37 @@ with Bun. We create a bi-directional RPC between Bun server and our Tauri client
 Install [Bun](https://bun.sh/). The project uses Bun workspace and everything
 runs using Bun.
 
+- Install packages:
+```
+bun install
+```
+
 - Run the client server:
 
 ```
-cd ./apps/client
-bun dev
+bun run --filter client dev
 ```
 
-- Run the web server:
+- Run the web server: The web server is only needed during development mode. It's not used on the release build of the app.
 
 ```
-cd ./apps/server
-bun dev
+bun run --filter server dev
 ```
 
 - Run the Tauri server:
 
+Tauri depends on the compiled Bun server binary; run this at least once before starting the dev server:
 ```
-bun run --filter server compile # Tauri depends on the compiled Bun server binary; run this at least once starting dev server
+bun run --filter server compile
+```
+```
 bun tauri:dev
 ```
 
 ### Production
 
 In production, the Bun web server is compiled as a standalone binary and this
-binary is embedded as a sidecar in Tauri.
+binary is embedded as a sidecar in Tauri automatically.
 
 ```
 bun tauri:build

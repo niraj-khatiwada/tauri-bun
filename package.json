@@ -1,7 +1,9 @@
 {
   "name": "tauri-bun",
   "private": true,
-  "workspaces": ["apps/*"],
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
@@ -22,6 +24,8 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{js,ts,jsx,tsx}": ["biome check --write"]
+    "src/**/*.{js,ts,jsx,tsx}": [
+      "biome check --write"
+    ]
   }
 }
